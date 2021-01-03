@@ -1,58 +1,42 @@
 import matplotlib.pyplot as plt 
 import numpy as np
-import pandas as pd
 
-def simulate(rate,attempts,iterations=1000, y1label='Hits',y2label='Misses'):
-    if(attempts % 2 != 0):
-        attempts += 1
+def simulate(rateA,sampleA,rateB, sampleB, iterations=1000, y1label='SampleA',y2label='SampleB'):
+    y1 = []
+    y2 = []
     for i in range(0,iterations):  
-        population = list(range(1,attempts+1))
-        successes = generateNumbers(attempts)  
-        sampleResults(population,successes,rate)
-    # generatePlot(x,y,rate,y1label,y2label)
+        populationA = list(range(1,sampleA+1))
+        populationB = list(range(1,sampleB+1))
+        resultsA = generateNumbers(sampleA)  
+        resultsB = generateNumbers(sampleB)  
+        y1.append(getSuccesses(populationA,resultsA,rateA))
+        y2.append(getSuccesses(populationB,resultsB,rateB))
+    generatePlot(iterations,y1,y2,y1label,y2label)
 
-def generateNumbers(attempts):
-    y = np.random.random(attempts)
+def generateNumbers(sample):
+    y = np.random.random(sample)
     return y
 
-def sampleResults(population,successes,rate):
+def getSuccesses(population,successes,rate):
     size = 50
     rate = rate / 100
     multiplier = int(len(population)/2)
     hits = 0
-    misses = 0
     for outcome in successes:
         if outcome <= rate:
             hits += 1
-        else:
-            misses += 1
-    print(f'hits:{hits}')
+    return hits
 
-def generatePlot(x,y,rate,y1label,y2label):
-    # size = 50
-    # rate = rate / 100
-    # multiplier = int(len(x)/2)
-    # outcomes = []
-    # hits = 0
-    # misses = 0
-    # for outcome in y:
-    #     if outcome <= rate:
-    #         outcomes.append('hit')
-    #         hits += 1
-    #     else:
-    #         outcomes.append('miss')
-    #         misses += 1
-    df = pd.DataFrame(dict(x=x, y=y, label=outcomes))
-    groups = df.groupby('label')
-    colors = {'hit':'#2AD449', 'miss':'#FF4D4D'}
-    fig, ax = plt.subplots()
+def generatePlot(x,y1,y2,y1label,y2label):
+    size = 50
+    x = list(range(0,x))
+    maxA = max(y1)
+    maxB = max(y2)
     if(len(x) > 500):
         size *= 500 / len(x)
-    for name, group in groups: 
-        ax.scatter(group.x,group.y,s=size,label=name,c=colors[name],alpha=0.65)
-    ax.legend([f'{y1label} - {hits}',f'{y2label} - {misses}'])
+    plt.scatter(x,y1,s=size,label=y1label,alpha=0.65)
+    plt.scatter(x,y2,s=size,label=y2label,c='red',alpha=0.65)
+    plt.legend([f'Most {y1label} - {maxA}',f'Most {y2label} - {maxB}'])
     plt.show()
 
-simulate(4.7,262,y1label='Enderpearls')
-
-# simulate(50,305,'Blazerods')
+simulate(rateA=3.7,sampleA=262,rateB=50,sampleB=305,iterations=1000,y1label='Enderpearls',y2label="Blazerods")
